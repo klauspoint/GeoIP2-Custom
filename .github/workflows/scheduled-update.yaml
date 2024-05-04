@@ -1,0 +1,57 @@
+name: Update China IP list and generate GeoIP2 database
+
+on:
+  push:
+    branches: [ main ]
+  
+  workflow_dispatch:
+
+  schedule: 
+    - cron:  '0 2 */3 * *'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+  
+    steps:
+
+    - name: Set up Go
+      uses: actions/setup-go@v2
+      with:
+        go-version: 1.22
+
+    - name: Checkout
+      uses: actions/checkout@v2
+
+    - name: Go get dependencies
+      run: go get -v -t -d ./...
+
+    - name: Build
+      # build.sh generates the executables and the mmdb in ./bin directory
+      run: ./build.sh
+
+    - name: Push the generated Country.mmdb to release branch
+      run: |
+        git config --local user.email "38652850+klauspoint@users.noreply.github.com"
+        git config --local user.name "klauspoint"
+
+        git fetch
+        git checkout release
+        git checkout --orphan temp
+        git rm -rf .
+
+        mv bin/Country.mmdb ./
+
+        git add Country.mmdb
+        git commit -am "Update Country.mmdb at $(date)"
+
+        git branch -D release
+        git branch -m release
+
+    - name: GitHub Action to push changes
+      uses: ad-m/github-push-action@master
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        branch: release
+        force: true
+        
