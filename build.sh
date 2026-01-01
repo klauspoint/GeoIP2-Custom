@@ -17,5 +17,8 @@ curl -sSL https://raw.githubusercontent.com/gaoyifan/china-operator-ip/ip-lists/
 # Generate mmdb
 ./bin/${EXE_NAME} -s bin/$IP_LIST -d bin/Country.mmdb -t "GeoIP2-Country"
 
+# Verify
+./bin/verify -f bin/Country.mmdb
+
 # Alternative mmdb for test: GeoIP2-CN
 # curl -sSL "https://github.com/Hackl0us/GeoIP2-CN/raw/release/Country.mmdb" > bin/GeoIP2-CN.mmdb

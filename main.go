@@ -39,7 +39,9 @@ func parseCIDRs(txtList []string) []*net.IPNet {
 	for _, cidrTxt := range txtList {
 		_, network, err := net.ParseCIDR(cidrTxt)
 		if err != nil || network == nil {
-			log.Printf("%s fail to parse to CIDR\n", cidrTxt)
+			if cidrTxt != "" {  // silently ignore empty lines
+				log.Printf("%s fail to parse to CIDR\n", cidrTxt)
+			}
 			continue
 		}
 		networkList = append(networkList, network)

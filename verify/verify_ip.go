@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"net"
+	"strings"
 
 	"github.com/oschwald/geoip2-golang"
 )
@@ -35,6 +36,17 @@ func main() {
 	// "2402:f000:1:404:166:111:4:100": www.tsinghua.edu.cn
 	// "2001:4860:4860::8844": dns.google
 
+	maxIPLen := 0
+	for _, ip := range list {
+		if l := len(ip); l > maxIPLen {
+			maxIPLen = l
+		}
+	}
+
+	// print header
+	fmt.Printf("%-*s  %s\n", maxIPLen, "IP", "Country")
+	fmt.Printf("%s  %s\n", strings.Repeat("-", maxIPLen), strings.Repeat("-", len("Country")))
+
 	for _, ipTxt := range list {
 		ip := net.ParseIP(ipTxt)
 		record, err := db.Country(ip)
@@ -42,7 +54,7 @@ func main() {
 			log.Fatal(err)
 		}
 
-		fmt.Printf("IP:%s-Locale:%s\n", ipTxt, record.Country.IsoCode)
+		fmt.Printf("%-*s  %s\n", maxIPLen, ipTxt, record.Country.IsoCode)
 		//fmt.Printf("%d, %s, %s|\n %s, %d, %s, %v|\n %s, %d, %v, %s|\n %s, %s, %v, %v|\n ", record.Continent.GeoNameID, record.Continent.Code, record.Continent.Names,
 		//	record.Country.Names, record.Country.GeoNameID, record.Country.IsoCode, record.Country.IsInEuropeanUnion,
 		//	record.RegisteredCountry.Names, record.RegisteredCountry.GeoNameID, record.RegisteredCountry.IsInEuropeanUnion, record.RegisteredCountry.IsoCode,
